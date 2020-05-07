@@ -61,6 +61,7 @@ func (r *tickWorker) Start(stop chan bool, wg *sync.WaitGroup) {
 
 	// Building workers
 	for i := 0; i < r.workers; i++ {
+		r.wg.Add(1)
 		go r.worker(i + 1)
 	}
 
@@ -121,7 +122,6 @@ func (r *tickWorker) worker(workerId int) {
 	log := r.WithField("w", workerId)
 	log.Debug("TickWorker started")
 
-	r.wg.Add(1)
 	defer func() {
 		r.wg.Done()
 		log.Infof("TickWorker %d stopped", workerId)
