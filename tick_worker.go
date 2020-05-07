@@ -8,6 +8,7 @@ import (
 
 type TickWorker interface {
 	Start(stop chan bool, wg *sync.WaitGroup)
+	Event(data interface{})
 }
 
 type tickWorker struct {
@@ -93,7 +94,7 @@ func (r *tickWorker) Start(stop chan bool, wg *sync.WaitGroup) {
 			return
 
 		case <-timer.C:
-			if count, err := r.tick(r.event); err != nil {
+			if count, err := r.tick(r.Event); err != nil {
 				r.Errorf("Tick failed - %s", err)
 				timer = time.NewTimer(r.tickEvery * 2)
 			} else if count > 0 {
@@ -109,7 +110,7 @@ func (r *tickWorker) Start(stop chan bool, wg *sync.WaitGroup) {
 	}
 }
 
-func (r *tickWorker) event(data interface{}) {
+func (r *tickWorker) Event(data interface{}) {
 	select {
 	case <-r.stop:
 		return
